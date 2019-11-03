@@ -100,7 +100,8 @@ class model_train(object):
                 }
         self.class_params_dict={}
         #同一类大楼采用相同参数作为自动调参的起点
-    def base_train_cell_v1(self,train_data,params=self.init_common_params):
+    def base_train_cell_v1(self,train_data,params):
+        #params=self.init_common_params
         y=train_data.meter_reading
         x=train_data.drop(labels=['building_id','meter','timestamp','site_id'],axis=1)
         x_train, x_test, y_train, y_test = train_test_split(x,y, test_size=0.2, random_state=1)
