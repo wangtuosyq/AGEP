@@ -112,6 +112,14 @@ class model_train(object):
         watchlist = [(xgb_train, 'train'),(xgb_val, 'val')]
         model = xgb.train(plst, xgb_train, num_rounds, watchlist,early_stopping_rounds=50)
         print(model.eval(xgb_val))
+        y_predict=pd.DataFrame(model.predict(xgb_val),columns=['meter_reading'])
+        y_predict['type']='predict'
+        y_test.index=range(len(y_test))
+        Y_test=pd.DataFrame(y_test,columns=['meter_reading'])
+        Y_test['type']='test'   
+        data=pd.concat([y_predict,Y_test])
+        data['index']=data.index
+        sns.relplot(x='index', y='meter_reading', kind='line',hue='type', data=data[(data['index']<1000)&(data['index']>800)])
         pass
     
 '''
@@ -161,7 +169,7 @@ def test():#测试函数，保存实验中间过程
     sns.relplot(x='date', y='meter_reading',
             kind='line',
             #data=train_data[(train_data.timestamp<'2016-06-30')&(train_data.timestamp>'2016-05-30')])
-            data=train_data_daily[(train_data_daily.date<'2016-12-30')&(train_data_daily.date>'2016-01-20')])
+            data=train_data_daily[(train_data_daily.date<'2016-12-30')&(train_data_daily.date>'2016-01-01')])
 
     for i in ['air_temperature', 'cloud_coverage', 'dew_temperature',
        'precip_depth_1_hr', 'sea_level_pressure', 'wind_direction',
