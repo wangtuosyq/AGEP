@@ -335,10 +335,12 @@ def test3():
                 #'seed': 1000,
                 #'nthread': 4,                  # cpu 线程数，默认为最大可用线程数
                 }       
-     learning_rates=[0.3]*500+[0.25]*500+[0.2]*500+[0.15]*500+[0.1]*500+[0.05]*950+[0.3]*50+[0.03]*950+[0.2]*50+[0.01]*450+[0.1]*50
+     #learning_rates=[0.3]*500+[0.25]*500+[0.2]*500+[0.15]*500+[0.1]*500+[0.05]*950+[0.3]*50+[0.03]*950+[0.2]*50+[0.01]*450+[0.1]*50
+     learning_rates=[0.3]*100+[0.2]*50+[0.1]*50
      params=init_common_params
      plst = params.items()
-     num_rounds = 5000 # 迭代次数
+     #num_rounds = 5000 # 迭代次数
+     num_rounds = 200 # 迭代次数
      watchlist = [(xgb_train, 'train'),(xgb_val, 'val')]
      model = xgb.train(plst, xgb_train, num_rounds, watchlist,obj=squarederrorobj,feval=eval_metric,learning_rates=learning_rates,early_stopping_rounds=100)
      print(model.eval(xgb_val))
