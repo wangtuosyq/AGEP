@@ -309,10 +309,20 @@ def test3():
      #del x_train,y_train,xgb_train
      #xgb_val=xgb.DMatrix(data = 'xgb_test.lib#xgb_val.cache')
      #xgb_train=xgb.DMatrix(data = 'xgb_train.lib#xgb_train.cache')
+     '''
      init_common_params= {
                 'booster': 'gblinear',
-                #'objective': 'reg:squarederror',  
-                #'num_class': 10,               # 类别数，与 multisoftmax 并用
+                'lambda': 0.2,                   # 控制模型复杂度的权重值的L2正则化项参数，参数越大，模型越不容易过拟合。
+
+                'silent': 0,                   # 设置成1则没有运行信息输出，最好是设置为0.
+                
+                'feature_selector':'shuffle'
+
+                }  
+     '''
+     init_common_params= {
+                'booster': 'gbtree',
+
                 'gamma': 0.1,                  # 用于控制是否后剪枝的参数,越大越保守，一般0.1、0.2这样子。
                 'max_depth': 5,               # 构建树的深度，越大越容易过拟合
                 'lambda': 0.2,                   # 控制模型复杂度的权重值的L2正则化项参数，参数越大，模型越不容易过拟合。
@@ -320,7 +330,7 @@ def test3():
                 'colsample_bytree': 0.7,       # 生成树时进行的列采样
                 'min_child_weight': 3,
                 'silent': 0,                   # 设置成1则没有运行信息输出，最好是设置为0.
-                'eta': 0.1,                  # 如同学习率
+                #'eta': 0.1,                  # 如同学习率
                 #'eval_metric':'rmsle'
                 #'seed': 1000,
                 #'nthread': 4,                  # cpu 线程数，默认为最大可用线程数
