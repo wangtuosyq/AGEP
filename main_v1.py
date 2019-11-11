@@ -250,6 +250,8 @@ def main(version=0,date='1111'):
     primary_use_list=dp.building_metadata.primary_use.drop_duplicates().values
     meter_list=[0,1,2,3]
     mt=model_train()
+    params=mt.init_common_params.copy()
+    params['nthread']=3
     eval_history={}
     predict_result=[]
     
