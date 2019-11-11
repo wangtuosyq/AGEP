@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import dump_svmlight_file
 import pickle
+import json
 class data_prepare(object):
     def __init__(self,path='./data/'):
         self.building_metadata=pd.read_csv(path+'building_metadata.csv')
@@ -167,7 +168,7 @@ class model_train(object):
         data['index']=data.index
         sns.relplot(x='index', y='meter_reading', kind='line',hue='type', data=data[(data['index']<1000)&(data['index']>800)])
         pass
-    def train_by_use(self,train_data,params,version=1,primary_use='Education',meter=0):
+    def train_by_use(self,train_data,params,version=1,primary_use='Education',meter=0,learning_rates=[0.3]*300+[0.2]*200+[0.1]*100,num_rounds = 600 ):
         y=train_data.meter_reading
         x=train_data.drop(labels=['meter_reading'],axis=1)
     
@@ -193,18 +194,22 @@ class model_train(object):
                 #'seed': 1000,
                 #'nthread': 4,                  # cpu 线程数，默认为最大可用线程数
                 }       
-        learning_rates=[0.3]*200+[0.2]*100+[0.1]*100
+        #learning_rates=[0.3]*300+[0.2]*200+[0.1]*100
         params=init_common_params
         plst = params.items()
         #num_rounds = 5000 # 迭代次数
-        num_rounds = 400 # 迭代次数
+        #num_rounds = 600 # 迭代次数
         watchlist = [(xgb_train, 'train'),(xgb_val, 'val')]
-        model = xgb.train(plst, xgb_train, num_rounds, watchlist,obj=squarederrorobj,feval=eval_metric,learning_rates=learning_rates,early_stopping_rounds=100)
+        model = xgb.train(plst, xgb_train, num_rounds, watchlist,obj=squarederrorobj,feval=eval_metric,learning_rates=learning_rates,early_stopping_rounds=50)
         r=model.eval_set(watchlist,feval=eval_metric)
         del xgb_train,xgb_val,watchlist
         date=time.strftime('%m%d',time.localtime())
         f_path='./model/{}_{}_{}_{}.txt'.format(primary_use,meter,date,version)
         model.dump_model(f_path)
+        with open('./params/{}_{}_{}_{}.txt'.format(primary_use,meter,date,version),'wb') as f:
+            f.write(json.dumps(params))
+                
+            
         return model,r
     
     def predict_by_use(self,model,test_data):
@@ -237,6 +242,33 @@ def squarederrorobj(preds, dtrain):
     grad = (p-l)/(preds+1)
     hess = (1+l+p)/(preds+1)**2
     return grad, hess
+
+
+
+def main(version=0,date='1111'):
+    dp=data_prepare()
+    primary_use_list=dp.building_metadata.primary_use.drop_duplicates().values
+    meter_list=[0,1,2,3]
+    mt=model_train()
+    eval_history={}
+    predict_result=[]
+    
+    for p in primary_use_list:
+        eval_history[p]={}
+        for m in meter_list:
+            train_data=dp.get_train_data_by_use(primary_use=p,meter=m)
+            model,r=mt.train_by_use(train_data,mt.init_common_params)
+            del train_data
+            eval_history[p][m]=r
+            test_data=dp.get_test_data_by_use(primary_use=p,meter=m)
+            predict_df=mt.predict_by_use(model,test_data)
+            del test_data
+            predict_result.append(predict_df)
+    predict_result=pd.concat(predict_result)
+    predict_result.sort_index(inplace=True)
+    predict_result.to_csv('./submission/{}_v{}.csv'.format(date,version))
+            
+
 
 def test3():
      self=data_prepare()
