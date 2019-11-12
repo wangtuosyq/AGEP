@@ -206,7 +206,7 @@ class model_train(object):
         date=time.strftime('%m%d',time.localtime())
         f_path='./model/{}_{}_{}_{}.txt'.format(primary_use,meter,date,version)
         model.dump_model(f_path)
-        with open('./params/{}_{}_{}_{}.txt'.format(primary_use,meter,date,version),'wb') as f:
+        with open('./params/{}_{}_{}_{}.txt'.format(primary_use,meter,date,version),'w') as f:
             f.write(json.dumps(params))
                 
             
@@ -259,13 +259,14 @@ def main(version=0,date='1111'):
         eval_history[p]={}
         for m in meter_list:
             train_data=dp.get_train_data_by_use(primary_use=p,meter=m)
-            model,r=mt.train_by_use(train_data,mt.init_common_params)
-            del train_data
-            eval_history[p][m]=r
-            test_data=dp.get_test_data_by_use(primary_use=p,meter=m)
-            predict_df=mt.predict_by_use(model,test_data)
-            del test_data
-            predict_result.append(predict_df)
+            if len(train_data)>0:
+                model,r=mt.train_by_use(train_data,mt.init_common_params)
+                del train_data
+                eval_history[p][m]=r
+                test_data=dp.get_test_data_by_use(primary_use=p,meter=m)
+                predict_df=mt.predict_by_use(model,test_data)
+                del test_data
+                predict_result.append(predict_df)
     predict_result=pd.concat(predict_result)
     predict_result.sort_index(inplace=True)
     predict_result.to_csv('./submission/{}_v{}.csv'.format(date,version))
