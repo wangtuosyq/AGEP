@@ -20,7 +20,7 @@ class data_prepare(object):
     def __init__(self,path='./data/'):
         self.building_metadata=pd.read_csv(path+'building_metadata.csv')
         self.sample_submission=pd.read_csv(path+'sample_submission.csv')
-        self.test=pd.read_csv(path+'test.csv',index_col='row_id')
+        self.test=pd.read_csv(path+'test.csv')
         self.train=pd.read_csv(path+'train.csv')
         self.weather_test=pd.read_csv(path+'weather_test.csv')
         self.weather_train=pd.read_csv(path+'weather_train.csv')
@@ -56,7 +56,8 @@ class data_prepare(object):
         test_data['month']=test_data['timestamp'].apply(lambda x:x.split(' ')[0].split('-')[1]).apply(int)
         test_data['day']=test_data['timestamp'].apply(lambda x:x.split(' ')[0].split('-')[2]).apply(int)
         test_data['hour']=test_data['timestamp'].apply(lambda x:x.split(' ')[1].split(':')[0]).apply(int)
-        del test_data['timestamp']
+        test_data.index=test_data['row_id']
+        del test_data['timestamp'],test_data['row_id']
         return test_data        
     
     def get_train_data_all(self):
