@@ -42,8 +42,10 @@ class data_prepare(object):
         train_data['month']=train_data['timestamp'].apply(lambda x:x.split(' ')[0].split('-')[1]).apply(int)
         train_data['day']=train_data['timestamp'].apply(lambda x:x.split(' ')[0].split('-')[2]).apply(int)
         train_data['hour']=train_data['timestamp'].apply(lambda x:x.split(' ')[1].split(':')[0]).apply(int)
-        train_data.loc[(train_data['wday'] == 5) | (train_data['wday'] == 6) , 'is_holiday'] = 1
+        train_data['is_holiday']=0
+
         train_data.loc[(train_data['wday']) == 5 | (train_data['wday'] == 6) , 'is_holiday'] = 1
+        print(train_data['is_holiday'].mean())
         del train_data['timestamp']
         return train_data   
     def get_test_data_by_use(self,primary_use='Education',meter=0):
@@ -58,8 +60,9 @@ class data_prepare(object):
         test_data['month']=test_data['timestamp'].apply(lambda x:x.split(' ')[0].split('-')[1]).apply(int)
         test_data['day']=test_data['timestamp'].apply(lambda x:x.split(' ')[0].split('-')[2]).apply(int)
         test_data['hour']=test_data['timestamp'].apply(lambda x:x.split(' ')[1].split(':')[0]).apply(int)
+        test_data['is_holiday']=0
         test_data.loc[(test_data['wday'] == 5) | (test_data['wday'] == 6) , 'is_holiday'] = 1
-        test_data.loc[(test_data['wday']) == 5 | (test_data['wday'] == 6) , 'is_holiday'] = 1        
+        print(test_data['is_holiday'].mean())
         test_data.index=test_data['row_id']
         del test_data['timestamp'],test_data['row_id']
         return test_data        
@@ -251,7 +254,7 @@ def squarederrorobj(preds, dtrain):
 
 
 
-def main(version=1,date='1111'):
+def main(version=1,date='1114'):
     dp=data_prepare()
     primary_use_list=dp.building_metadata.primary_use.drop_duplicates().values
     meter_list=[0,1,2,3]
