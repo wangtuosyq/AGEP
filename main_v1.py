@@ -182,7 +182,7 @@ class model_train(object):
         x=train_data.drop(labels=['meter_reading'],axis=1)
     
         del train_data
-        x_train, x_test, y_train, y_test = train_test_split(x,y, test_size=0.2, random_state=1)
+        x_train, x_test, y_train, y_test = train_test_split(x,y, test_size=0.01, random_state=1)
         xgb_val = xgb.DMatrix(x_test,label=y_test)
 
         xgb_train = xgb.DMatrix(x_train, label=y_train)
